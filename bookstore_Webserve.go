@@ -1,10 +1,10 @@
-// Web server for bookstore app
+// Web server for patientstore app
 
 package main
 
 import (
-	"demo/models"
 	"bytes"
+	"demo/models"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -19,15 +19,15 @@ var dataserver = "http://127.0.0.1:4000"
 
 func main() {
 
-	http.HandleFunc("/books", bookIndex)
-	http.HandleFunc("/books/show", bookShow)
-	http.HandleFunc("/books/create_book", create_book)
-	http.HandleFunc("/books/delete_book", delete_book)
-	http.HandleFunc("/error", booksError)
-	http.HandleFunc("/", booksLanding)
+	http.HandleFunc("/patients", patientIndex)
+	http.HandleFunc("/patients/show", patientShow)
+	http.HandleFunc("/patients/create_patient", create_patient)
+	http.HandleFunc("/patients/delete_patient", delete_patient)
+	http.HandleFunc("/error", patientsError)
+	http.HandleFunc("/", patientsLanding)
 
 	if ping() {
-		fmt.Println("Bookstore: webserver (port:3000)")
+		fmt.Println("Patientstore: webserver (port:3000)")
 		http.ListenAndServe(":3000", nil)
 	} else {
 		fmt.Printf("Dataserver not available %s \n", dataserver)
@@ -47,13 +47,13 @@ func ping() bool {
 	return true
 }
 
-// get Books from data server
-func getBooks(w http.ResponseWriter, r *http.Request, endpoint string) []models.Book {
+// get Patients from data server
+func getPatients(w http.ResponseWriter, r *http.Request, endpoint string) []models.Patient {
 
 	// url with endpoint
 	url := fmt.Sprintf("%s/%s", dataserver, endpoint)
 
-	// GET JSON data for books
+	// GET JSON data for patients
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func getBooks(w http.ResponseWriter, r *http.Request, endpoint string) []models.
 			panic(err)
 		}
 
-		var bks []models.Book
+		var bks []models.Patient
 
 		// unmarshal json into our struct
 		err = json.Unmarshal([]byte(jsonDataFromHttp), &bks)
@@ -79,43 +79,43 @@ func getBooks(w http.ResponseWriter, r *http.Request, endpoint string) []models.
 	return nil
 }
 
-func booksLanding(w http.ResponseWriter, r *http.Request) {
+func patientsLanding(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("welcome.html")
 	t.Execute(w, nil)
 }
 
-func booksError(w http.ResponseWriter, r *http.Request) {
+func patientsError(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("error.html")
 	t.Execute(w, nil)
 }
 
-func bookIndex(w http.ResponseWriter, r *http.Request) {
+func patientIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
 	// render html template
 	t, _ := template.ParseFiles("index.html", "base.html")
-	t.Execute(w, getBooks(w, r, "books"))
+	t.Execute(w, getPatients(w, r, "patients"))
 
 }
 
-func bookShow(w http.ResponseWriter, r *http.Request) {
+func patientShow(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
 
-	isbn := r.FormValue("isbn")
-	if isbn == "" {
+	code := r.FormValue("code")
+	if code == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
 	// render html template
-	t, _ := template.ParseFiles("book.html", "base.html")
-	t.Execute(w, getBooks(w, r, fmt.Sprintf("books/show?isbn=%s", isbn)))
+	t, _ := template.ParseFiles("patient.html", "base.html")
+	t.Execute(w, getPatients(w, r, fmt.Sprintf("patients/show?code=%s", code)))
 
 }
 
@@ -142,62 +142,55 @@ func http_post(endpoint string, data url.Values) {
 
 }
 
-func create_book(w http.ResponseWriter, r *http.Request) {
+func create_patient(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, _ := template.ParseFiles("new_book.html", "base.html")
+		t, _ := template.ParseFiles("new_patient.html", "base.html")
 		t.Execute(w, nil)
 	} else {
 		r.ParseForm()
-
-		isbn := r.FormValue("isbn")
-		title := r.FormValue("title")
-		author := r.FormValue("author")
-
-		if isbn == "" || title == "" || author == "" {
+		code := r.FormValue("code")
+		fnamme := r.FormValue("fnamme")
+		lname := r.FormValue("lname")
+		addr := r.FormValue("addr")
+		if code == "" || fnamme == "" || lname == "" {
 			http.Error(w, http.StatusText(400), 400)
 			return
 		}
 		// confirm price is a float
-		_, err := strconv.ParseFloat(r.FormValue("price"), 32)
-		if err != nil {
-			http.Error(w, http.StatusText(400), 400)
-			return
-		}
 		// take the form submitted value for price
-		price := r.FormValue("price")
 
 		// package the data for HTTP POST
 		data := url.Values{}
-		data.Set("isbn", isbn)
-		data.Add("title", title)
-		data.Add("author", author)
-		data.Add("price", price)
+		data.Set("code", code)
+		data.Add("fname", fnamme)
+		data.Add("lname", lname)
+		data.Add("addr", addr)
 
-		url := fmt.Sprintf("%s/books/create", dataserver)
+		url := fmt.Sprintf("%s/patients/create", dataserver)
 		http_post(url, data)
 
-		http.Redirect(w, r, "/books", http.StatusFound)
+		http.Redirect(w, r, "/patients", http.StatusFound)
 	}
 
 }
 
-func delete_book(w http.ResponseWriter, r *http.Request) {
+func delete_patient(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	isbn := r.FormValue("isbn")
+	code := r.FormValue("code")
 
-	if isbn == "" {
+	if code == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
 
 	// package the data for HTTP POST
 	data := url.Values{}
-	data.Set("isbn", isbn)
+	data.Set("code", code)
 
-	url := fmt.Sprintf("%s/books/delete", dataserver)
+	url := fmt.Sprintf("%s/patients/delete", dataserver)
 	http_post(url, data)
 
-	http.Redirect(w, r, "/books", http.StatusFound)
+	http.Redirect(w, r, "/patients", http.StatusFound)
 
 }

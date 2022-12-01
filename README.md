@@ -67,8 +67,16 @@ Add Book
  * UPDATE **TBD*
 
 markdown created with http://jbt.github.io/markdown-editor
+CREATE TABLE patients (
+  code    char(14) NOT NULL,
+  fname   varchar(255) NOT NULL,
+  lname  varchar(255) NOT NULL,
+  addr   varchar(255) NOT NULL
+);
 
-
-
+INSERT INTO patients (code, fname, lname, addr) VALUES
+('978-1503261969', 'Emma', 'Jayne Austen', 'A'),
+('978-1505255607', 'The Time Machine', 'H. G. Wells', 'B'),
+('978-1503379640', 'The Prince', 'Niccolò Machiavelli', 'C');
 
 

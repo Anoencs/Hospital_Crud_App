@@ -1,4 +1,4 @@
-// Data server for bookstore app
+// Data server for patientstore app
 // borrows from and extends: http://www.alexedwards.net/blog/practical-persistence-sql
 
 package main
@@ -8,28 +8,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 func main() {
 	models.InitDB("postgres://postgres:1@localhost:5439/demo?sslmode=disable")
 
-	http.HandleFunc("/books", booksIndex)
-	http.HandleFunc("/books/show", booksShow)
-	http.HandleFunc("/books/create", booksCreate)
-	http.HandleFunc("/books/delete", booksDelete)
+	http.HandleFunc("/patients", patientsIndex)
+	http.HandleFunc("/patients/show", patientsShow)
+	http.HandleFunc("/patients/create", patientsCreate)
+	http.HandleFunc("/patients/delete", patientsDelete)
 
-	fmt.Println("Bookstore: dataserver (port:4000)")
+	fmt.Println("Patientstore: dataserver (port:4000)")
 	http.ListenAndServe(":4000", nil)
 }
 
-// return an index of all Books
-func booksIndex(w http.ResponseWriter, r *http.Request) {
+// return an index of all Patients
+func patientsIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
-	bks, err := models.GetBooks()
+	bks, err := models.GetPatients()
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -45,20 +44,20 @@ func booksIndex(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// return a subset of Book records
-func booksShow(w http.ResponseWriter, r *http.Request) {
+// return a subset of Patient records
+func patientsShow(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
 
-	// use isbn as a filter
-	isbn := r.FormValue("isbn")
-	if isbn == "" {
+	// use code as a filter
+	code := r.FormValue("code")
+	if code == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
-	bks, err := models.GetBooks(isbn)
+	bks, err := models.GetPatients(code)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -74,27 +73,22 @@ func booksShow(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// create a new Book record
-func booksCreate(w http.ResponseWriter, r *http.Request) {
+// create a new Patient record
+func patientsCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
 
-	isbn := r.FormValue("isbn")
-	title := r.FormValue("title")
-	author := r.FormValue("author")
-	if isbn == "" || title == "" || author == "" {
+	code := r.FormValue("code")
+	fname := r.FormValue("fname")
+	lname := r.FormValue("lname")
+	addr := r.FormValue("addr")
+	if code == "" || fname == "" || lname == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
-	price, err := strconv.ParseFloat(r.FormValue("price"), 32)
-	if err != nil {
-		http.Error(w, http.StatusText(400), 400)
-		return
-	}
-
-	rowsAffected, err := models.CreateBook(isbn, title, author, price)
+	rowsAffected, err := models.CreatePatient(code, fname, lname, addr)
 
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
@@ -102,24 +96,24 @@ func booksCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// output confirmation to console
-	fmt.Printf("Book %s created successfully (%d row affected)\n", isbn, rowsAffected)
+	fmt.Printf("Patient %s created successfully (%d row affected)\n", code, rowsAffected)
 }
 
-// deletes a Book record
-func booksDelete(w http.ResponseWriter, r *http.Request) {
+// deletes a Patient record
+func patientsDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(405), 405)
 		return
 	}
 
-	isbn := r.FormValue("isbn")
+	code := r.FormValue("code")
 
-	if isbn == "" {
+	if code == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
 
-	rowsAffected, err := models.DeleteBook(isbn)
+	rowsAffected, err := models.DeletePatient(code)
 
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
@@ -127,5 +121,5 @@ func booksDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// output confirmation to console
-	fmt.Printf("Book %s deleted successfully (%d row affected)\n", isbn, rowsAffected)
+	fmt.Printf("Patient %s deleted successfully (%d row affected)\n", code, rowsAffected)
 }

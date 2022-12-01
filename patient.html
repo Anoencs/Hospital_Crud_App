@@ -1,0 +1,16 @@
+{{ define "style" }}{{ end }}
+
+{{ template "base" }}
+
+Patient information:<br><br>
+<table>
+{{range .}}
+    <tr><td> {{.Code}} </td></tr>
+    <tr><td><b> Fname: {{.Fname}} </b></td></tr>
+    <tr><td> Lname: {{.Lname}} </td></tr>
+    <tr><td> Addr: {{.Addr}} </td></tr>
+{{end}}
+</table>
+
+</body>
+</html>
