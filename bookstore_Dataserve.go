@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	models.InitDB("postgres://postgres:1@localhost:5439/demo?sslmode=disable")
+	models.InitDB("postgres://postgres:123456@localhost:5439/demo?sslmode=disable")
 
 	http.HandleFunc("/patients", patientsIndex)
 	http.HandleFunc("/patients/show", patientsShow)

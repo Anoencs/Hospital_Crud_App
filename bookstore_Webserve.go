@@ -149,10 +149,10 @@ func create_patient(w http.ResponseWriter, r *http.Request) {
 	} else {
 		r.ParseForm()
 		code := r.FormValue("code")
-		fnamme := r.FormValue("fnamme")
+		fname := r.FormValue("fname")
 		lname := r.FormValue("lname")
 		addr := r.FormValue("addr")
-		if code == "" || fnamme == "" || lname == "" {
+		if code == "" || fname == "" || lname == "" {
 			http.Error(w, http.StatusText(400), 400)
 			return
 		}
@@ -162,7 +162,7 @@ func create_patient(w http.ResponseWriter, r *http.Request) {
 		// package the data for HTTP POST
 		data := url.Values{}
 		data.Set("code", code)
-		data.Add("fname", fnamme)
+		data.Add("fname", fname)
 		data.Add("lname", lname)
 		data.Add("addr", addr)
 
