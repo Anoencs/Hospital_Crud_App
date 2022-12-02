@@ -19,13 +19,14 @@ var dataserver = "http://127.0.0.1:4000"
 
 func main() {
 
+	http.HandleFunc("/login", userLogin)
 	http.HandleFunc("/patients", patientIndex)
 	http.HandleFunc("/patients/show", patientShow)
 	http.HandleFunc("/patients/create_patient", create_patient)
 	http.HandleFunc("/patients/delete_patient", delete_patient)
+	http.HandleFunc("/patients/search_patient", search_patient)
 	http.HandleFunc("/error", patientsError)
 	http.HandleFunc("/", patientsLanding)
-
 	if ping() {
 		fmt.Println("Patientstore: webserver (port:3000)")
 		http.ListenAndServe(":3000", nil)
@@ -45,6 +46,55 @@ func ping() bool {
 		return false
 	}
 	return true
+}
+
+func userLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("login.html", "base.html")
+		t.Execute(w, nil)
+	} else {
+		r.ParseForm()
+		user_name := r.FormValue("user_name")
+		password := r.FormValue("password")
+		if user_name == "" || password == "" {
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+
+		// package the data for HTTP POST
+		data := url.Values{}
+		data.Set("user_name", user_name)
+		data.Add("password", password)
+
+		url := fmt.Sprintf("%s/login", dataserver)
+		//http_post(url, data)
+		resp, err := http.Post(url, "application/x-www-form-urlencoded", bytes.NewBufferString(data.Encode()))
+		if err != nil {
+			http.Redirect(w, r, "/error", http.StatusFound)
+		} else {
+			defer resp.Body.Close()
+
+			// read json http response
+			jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				panic(err)
+			}
+
+			var check bool
+
+			// unmarshal json into our struct
+			err = json.Unmarshal([]byte(jsonDataFromHttp), &check)
+			if err != nil {
+				panic(err)
+			}
+			if check {
+				http.Redirect(w, r, "/patients/show", http.StatusFound)
+			} else {
+				http.Redirect(w, r, "/login", http.StatusNotFound)
+			}
+		}
+	}
+
 }
 
 // get Patients from data server
@@ -113,6 +163,7 @@ func patientShow(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
+
 	// render html template
 	t, _ := template.ParseFiles("patient.html", "base.html")
 	t.Execute(w, getPatients(w, r, fmt.Sprintf("patients/show?code=%s", code)))
@@ -192,5 +243,56 @@ func delete_patient(w http.ResponseWriter, r *http.Request) {
 	http_post(url, data)
 
 	http.Redirect(w, r, "/patients", http.StatusFound)
+
+}
+
+func search_patient(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("search_patient.html", "base.html")
+		t.Execute(w, nil)
+	} else {
+		r.ParseForm()
+		code := r.FormValue("code")
+		fname := r.FormValue("fname")
+		lname := r.FormValue("lname")
+		addr := r.FormValue("addr")
+		if code == "" && fname == "" && lname == "" && addr == "" {
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+
+		// package the data for HTTP POST
+		data := url.Values{}
+		data.Set("code", code)
+		data.Add("fname", fname)
+		data.Add("lname", lname)
+		data.Add("addr", addr)
+
+		url := fmt.Sprintf("%s/patients/search", dataserver)
+		//http_post(url, data)
+		resp, err := http.Post(url, "application/x-www-form-urlencoded", bytes.NewBufferString(data.Encode()))
+		if err != nil {
+			http.Redirect(w, r, "/error", http.StatusFound)
+		} else {
+			defer resp.Body.Close()
+
+			// read json http response
+			jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				panic(err)
+			}
+
+			var bks []models.Patient
+
+			// unmarshal json into our struct
+			err = json.Unmarshal([]byte(jsonDataFromHttp), &bks)
+			if err != nil {
+				panic(err)
+			}
+			t, _ := template.ParseFiles("search_res.html", "base.html")
+			t.Execute(w, bks)
+		}
+		http.Redirect(w, r, "/patients/search_res", http.StatusFound)
+	}
 
 }

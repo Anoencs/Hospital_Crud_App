@@ -1,0 +1,21 @@
+{{ define "style" }}{{ end }}
+
+{{ template "base" }}
+
+Add new patient:<br><br>
+
+<form action="/patients/search_patient" method="post">
+   <table>
+    <tr><td align="right">Code:<input type="text" name="code"> </td></tr>
+    <tr><td align="right">Fname:<input type="text" name="fname"> </td></tr>
+    <tr><td align="right">Lname:<input type="text" name="lname"> </td></tr>
+    <tr><td align="right">Addr:<input type="text" name="addr"> </td></tr>
+    <tr><td>
+    <br>
+    <input type="submit" value="Search"> &nbsp; <a href="/patients">Cancel</a></td>
+    </tr>
+   </table>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+{{ define "style" }}
+<style>
+   tr:nth-of-type(odd) { background-color:#ccc; }
+</style>
+{{ end }}
+
+<!-- include base template -->
+{{ template "base" }}
+
+<body>
+
+Hospital Search:<br><br>
+<table>
+{{range .}}
+    <tr>
+    <td> <a href="/patients/show?code={{.Code}}">{{.Code}}</a> </td>
+    <td> {{.Fname}} </td>
+    <td> {{.Lname}} </td>
+    <td> {{.Addr}} </td>
+    <td> <a href="/patients/delete_patient?code={{.Code}}">Del</a> </td>
+    </tr>
+{{end}}
+</table>
+<br>
+<a href="/patients/create_patient">Add Patient</a>
+<br>
+<a href="patients/update_patient">Update_Patient</a>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{{ define "style" }}{{ end }}
+
+{{ template "base" }}
+
+Login:<br><br>
+
+<form action="/login" method="post">
+   <table>
+    <tr><td align="right">User name:<input type="text" name="user_name"> </td></tr>
+    <tr><td align="right">Password:<input type="password" name="password"> </td></tr>
+    <tr><td>
+    <br>
+    <input type="submit" value="Login"> &nbsp;
+    </tr>
+   </table>
+</form>
+
+</body>
+</html>

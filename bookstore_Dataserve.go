@@ -13,13 +13,41 @@ import (
 func main() {
 	models.InitDB("postgres://postgres:123456@localhost:5439/demo?sslmode=disable")
 
+	http.HandleFunc("/login", login)
 	http.HandleFunc("/patients", patientsIndex)
 	http.HandleFunc("/patients/show", patientsShow)
 	http.HandleFunc("/patients/create", patientsCreate)
 	http.HandleFunc("/patients/delete", patientsDelete)
+	http.HandleFunc("/patients/search", patientSearch)
 
 	fmt.Println("Patientstore: dataserver (port:4000)")
 	http.ListenAndServe(":4000", nil)
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" && r.Method != "GET" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+	user_name := r.FormValue("user_name")
+	password := r.FormValue("password")
+
+	if user_name == "" || password == "" {
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	bks, err := models.Verify_user(user_name, password)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	b, err := json.Marshal(bks)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Fprintf(w, string(b))
 }
 
 // return an index of all Patients
@@ -123,3 +151,34 @@ func patientsDelete(w http.ResponseWriter, r *http.Request) {
 	// output confirmation to console
 	fmt.Printf("Patient %s deleted successfully (%d row affected)\n", code, rowsAffected)
 }
+
+// search a Patient record
+func patientSearch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" && r.Method != "GET" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+
+	code := r.FormValue("code")
+	fname := r.FormValue("fname")
+	lname := r.FormValue("lname")
+	addr := r.FormValue("addr")
+	if code == "" && fname == "" && lname == "" && addr == "" {
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	bks, err := models.SearchPatient(code, fname, lname, addr)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	b, err := json.Marshal(bks)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Fprintf(w, string(b))
+
+}
+
