@@ -88,9 +88,11 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 			if check {
-				http.Redirect(w, r, "/patients/show", http.StatusFound)
+				http.Redirect(w, r, "/patients", http.StatusFound)
 			} else {
-				http.Redirect(w, r, "/login", http.StatusNotFound)
+				// http.Redirect(w, r, "/login", http.StatusNotFound)
+				t, _ := template.ParseFiles("wrong_user.html")
+				t.Execute(w, nil)
 			}
 		}
 	}
@@ -253,9 +255,9 @@ func search_patient(w http.ResponseWriter, r *http.Request) {
 	} else {
 		r.ParseForm()
 		code := r.FormValue("code")
-		fname := r.FormValue("fname")
-		lname := r.FormValue("lname")
-		addr := r.FormValue("addr")
+		fname := r.FormValue("firstname")
+		lname := r.FormValue("lastname")
+		addr := r.FormValue("address")
 		if code == "" && fname == "" && lname == "" && addr == "" {
 			http.Error(w, http.StatusText(400), 400)
 			return
@@ -264,9 +266,9 @@ func search_patient(w http.ResponseWriter, r *http.Request) {
 		// package the data for HTTP POST
 		data := url.Values{}
 		data.Set("code", code)
-		data.Add("fname", fname)
-		data.Add("lname", lname)
-		data.Add("addr", addr)
+		data.Add("firstname", fname)
+		data.Add("lastname", lname)
+		data.Add("address", addr)
 
 		url := fmt.Sprintf("%s/patients/search", dataserver)
 		//http_post(url, data)

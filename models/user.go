@@ -3,11 +3,11 @@ package models
 import "fmt"
 
 type User struct {
-	user_name string
-	password  string
+	User_name string
+	Password  string
 }
 
-func Verify_user(user_name, password string) (bool, error) {
+func Verify_user(user_name, password string) (bool) {
 	// user := new(User)
 	// var err error
 	// db.QueryRow("SELECT * FROM users WHERE user_name = '$1' LIMIT 1", user_name).Scan(&user.user_name, &user.password)
@@ -20,23 +20,24 @@ func Verify_user(user_name, password string) (bool, error) {
 	query := fmt.Sprintf("SELECT * FROM users WHERE user_name = '%s' LIMIT 1", user_name)
 	row, err := db.Query(query)
 	if err != nil {
-		return false, err
+		return false
 	}
 
 	defer row.Close()
 
 	user := new(User)
-	err = row.Scan(&user.user_name, &user.password)
+	row.Next()
+	err = row.Scan(&user.User_name, &user.Password)
 	if err != nil {
-		return false, err
+		return false
 	}
 
 	if err != nil {
-		return false, err
+		return false
 	}
-	if user.password != password {
-		return false, err
+	if user.Password != password {
+		return false
 	} else {
-		return true, err
+		return true
 	}
 }

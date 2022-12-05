@@ -36,12 +36,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
-	bks, err := models.Verify_user(user_name, password)
+	bks := models.Verify_user(user_name, password)
 
-	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
+	// if err != nil {
+	// 	http.Error(w, http.StatusText(500), 500)
+	// 	return
+	// }
 	b, err := json.Marshal(bks)
 	if err != nil {
 		fmt.Println(err)

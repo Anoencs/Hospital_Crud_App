@@ -1,6 +1,11 @@
 {{ define "style" }}
 <style>
    tr:nth-of-type(odd) { background-color:#ccc; }
+    *{
+    background-image: url("./background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+   }
 </style>
 {{ end }}
 
@@ -14,9 +19,12 @@ Hospital index:<br><br>
 {{range .}}
     <tr>
     <td> <a href="/patients/show?code={{.Code}}">{{.Code}}</a> </td>
-    <td> {{.Fname}} </td>
-    <td> {{.Lname}} </td>
-    <td> {{.Addr}} </td>
+    <td> {{.Firstname}} </td>
+    <td> {{.Lastname}} </td>
+    <td> {{.Address}} </td>
+    <td> {{.Gender}} </td>
+    <td> {{.Bdate}} </td>
+    <td> {{.Phonenumber}} </td>
     <td> <a href="/patients/delete_patient?code={{.Code}}">Del</a> </td>
     </tr>
 {{end}}
@@ -24,7 +32,7 @@ Hospital index:<br><br>
 <br>
 <a href="/patients/create_patient">Add Patient</a>
 <br>
-<a href="patients/update_patient">Update_Patient</a>
+<a href="patients/search_patient">Search_Patient</a>
 </body>
 </html>
 

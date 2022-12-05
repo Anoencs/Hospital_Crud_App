@@ -6,9 +6,12 @@ Patient information:<br><br>
 <table>
 {{range .}}
     <tr><td> {{.Code}} </td></tr>
-    <tr><td><b> Fname: {{.Fname}} </b></td></tr>
-    <tr><td> Lname: {{.Lname}} </td></tr>
-    <tr><td> Addr: {{.Addr}} </td></tr>
+    <tr><td><b> Fname: {{.Firstname}} </b></td></tr>
+    <tr><td> Lname: {{.Lastname}} </td></tr>
+    <tr><td> Addr: {{.Address}} </td></tr>
+    <tr><td> {{.Gender}} </td></tr>
+    <tr><td> {{.Bdate}} </td></tr>
+    <tr><td> {{.Phonenumber}} </td></tr>
 {{end}}
 </table>
 
