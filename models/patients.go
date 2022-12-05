@@ -50,9 +50,9 @@ func GetPatients(code ...string) ([]*Patient, error) {
 	return bks, nil
 }
 
-func CreatePatient(code string, fname string, lname string, addr string) (int64, error) {
+func CreatePatient(code, fname, lname, addr , gender, bdate, phonenumber string) (int64, error) {
 
-	result, err := db.Exec("INSERT INTO patient VALUES($1, $2, $3, $4)", code, fname, lname, addr)
+	result, err := db.Exec("INSERT INTO patient VALUES($1, $2, $3, $4, $5, $6, $7)", code, fname, lname, addr, gender, bdate, phonenumber)
 
 	if err != nil {
 		return 0, err

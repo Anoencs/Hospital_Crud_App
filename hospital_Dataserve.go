@@ -112,11 +112,15 @@ func patientsCreate(w http.ResponseWriter, r *http.Request) {
 	fname := r.FormValue("fname")
 	lname := r.FormValue("lname")
 	addr := r.FormValue("addr")
-	if code == "" || fname == "" || lname == "" {
+	gender := r.FormValue("gender")
+	bdate := r.FormValue("bdate")
+	phonenumber := r.FormValue("phonenumber")
+
+	if code == "" || fname == "" || lname == "" || addr == "" || gender == "" || bdate == "" || phonenumber == "" {
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
-	rowsAffected, err := models.CreatePatient(code, fname, lname, addr)
+	rowsAffected, err := models.CreatePatient(code, fname, lname, addr, gender, bdate, phonenumber)
 
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
@@ -181,4 +185,3 @@ func patientSearch(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(b))
 
 }
-

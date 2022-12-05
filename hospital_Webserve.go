@@ -205,7 +205,10 @@ func create_patient(w http.ResponseWriter, r *http.Request) {
 		fname := r.FormValue("fname")
 		lname := r.FormValue("lname")
 		addr := r.FormValue("addr")
-		if code == "" || fname == "" || lname == "" {
+		gender := r.FormValue("gender")
+		bdate := r.FormValue("bdate")
+		phonenumber := r.FormValue("phonenumber")
+		if code == "" || fname == "" || lname == "" || addr == "" || gender == "" || bdate == "" || phonenumber == ""{
 			http.Error(w, http.StatusText(400), 400)
 			return
 		}
@@ -218,6 +221,9 @@ func create_patient(w http.ResponseWriter, r *http.Request) {
 		data.Add("fname", fname)
 		data.Add("lname", lname)
 		data.Add("addr", addr)
+		data.Add("gender", gender)
+		data.Add("bdate", bdate)
+		data.Add("phonenumber", phonenumber)
 
 		url := fmt.Sprintf("%s/patients/create", dataserver)
 		http_post(url, data)
